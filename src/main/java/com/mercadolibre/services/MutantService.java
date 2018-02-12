@@ -12,6 +12,7 @@ public class MutantService {
 
 				// Chequeo combinaciones en forma horizontal
 				if (j < dna[i].length() - 3) {
+
 					if (ComparatorUtils.areEqualDna(dna[i].charAt(j), dna[i].charAt(j + 1), dna[i].charAt(j + 2),
 							dna[i].charAt(j + 3))) {
 						mutantDna++;
@@ -35,7 +36,7 @@ public class MutantService {
 				}
 
 				// Chequeo combinaciones en forma Oblicua, Izquierda a derecha & Abajo a arriba
-				if (j < dna[i].length() - 3) {
+				if (dna[i].length() > 3 && j < dna[i].length() - 3 && i > 2) {
 					if (ComparatorUtils.areEqualDna(dna[i].charAt(j), dna[i - 1].charAt(j + 1),
 							dna[i - 2].charAt(j + 2), dna[i - 3].charAt(j + 3))) {
 						mutantDna++;
