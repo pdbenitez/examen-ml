@@ -1,9 +1,12 @@
 package com.mercadolibre.services;
 
+import org.springframework.stereotype.Service;
+
 import com.mercadolibre.exceptions.DnaExcepcion;
 import com.mercadolibre.utils.CheckMatrixUtils;
 import com.mercadolibre.utils.ComparatorUtils;
 
+@Service
 public class MutantService {
 
 	public boolean isMutant(String[] dna) throws DnaExcepcion {
