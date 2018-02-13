@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mercadolibre.entities.Mutant;
+import com.mercadolibre.entities.Stats;
 import com.mercadolibre.exceptions.DnaExcepcion;
 import com.mercadolibre.services.MutantService;
 
@@ -34,6 +35,11 @@ public class MutantController {
 		} catch (DnaExcepcion e) {
 			throw e;
 		}
+	}
+
+	@RequestMapping("/stats")
+	public Stats getStats() {
+		return new Stats(40, 100);
 	}
 
 }
