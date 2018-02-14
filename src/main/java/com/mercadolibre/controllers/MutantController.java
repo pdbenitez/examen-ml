@@ -27,6 +27,8 @@ public class MutantController {
 
 		try {
 			if (mutantService.isMutant(mutante.getDna().toArray(new String[0]))) {
+				
+				mutantService.save(mutante.getDna().toArray(new String[0]));
 				return new ResponseEntity(HttpStatus.OK);
 			} else {
 				return new ResponseEntity(HttpStatus.FORBIDDEN);
@@ -39,7 +41,7 @@ public class MutantController {
 
 	@RequestMapping("/stats")
 	public Stats getStats() {
-		return new Stats(40, 100);
+		return mutantService.getStats();
 	}
 
 }
