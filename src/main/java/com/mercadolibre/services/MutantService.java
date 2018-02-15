@@ -1,13 +1,22 @@
 package com.mercadolibre.services;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.model.AttributeAction;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.AttributeValueUpdate;
+import com.amazonaws.services.dynamodbv2.model.GetItemResult;
+import com.amazonaws.services.dynamodbv2.model.UpdateItemRequest;
 import com.mercadolibre.entities.Person;
 import com.mercadolibre.entities.Stats;
 import com.mercadolibre.exceptions.DnaExcepcion;
-import com.mercadolibre.repositories.HumanRepository;
+import com.mercadolibre.repositories.PersonRepository;
 import com.mercadolibre.utils.CheckMatrixUtils;
 import com.mercadolibre.utils.ComparatorUtils;
 
@@ -15,7 +24,10 @@ import com.mercadolibre.utils.ComparatorUtils;
 public class MutantService {
 
 	@Autowired
-	private HumanRepository humanRepository;
+	private PersonRepository personRepository;
+
+	@Autowired
+	private AmazonDynamoDB amazonDynamoDB;
 
 	public boolean isMutant(String[] dna) throws DnaExcepcion {
 		int mutantDna = 0;
@@ -74,23 +86,65 @@ public class MutantService {
 	}
 
 	public Stats getStats() {
-		return new Stats(40.0, 100.0);
+
+		Map<String, AttributeValue> key = new HashMap<>();
+		key.put("dna", new AttributeValue().withS("DNA"));
+		GetItemResult result = amazonDynamoDB.getItem("DnaCounters", key);
+
+		Stats stats;
+		if (result.getItem() != null) {
+
+			AttributeValue count_mutant_dna = result.getItem().get("count_mutant_dna");
+			AttributeValue count_human_dna = result.getItem().get("count_human_dna");
+
+			stats = new Stats(Integer.parseInt(count_mutant_dna.getN()), Integer.parseInt(count_human_dna.getN()));
+
+		} else {
+			stats = new Stats(0, 0);
+		}
+		return stats;
 	}
 
 	public boolean getMutantStatus(String[] dna) throws DnaExcepcion {
 
 		String dnaParser = Arrays.toString(dna);
-		Person person = humanRepository.findOne(dnaParser);
-		boolean mutantCondition = false;
+		Person person = personRepository.findOne(dnaParser);
+		boolean mutantCondition;
 
 		if (person != null) {
 			mutantCondition = person.getIsMutant();
 		} else {
 			mutantCondition = this.isMutant(dna);
-			humanRepository.save(new Person(dnaParser, mutantCondition));
+			this.saveDna(dnaParser, mutantCondition);
 		}
 
 		return mutantCondition;
 	}
 
+	private void saveDna(String dnaParser, boolean mutantCondition) {
+
+		String counter;
+		personRepository.save(new Person(dnaParser, mutantCondition));
+
+		if (mutantCondition) {
+			counter = "count_mutant_dna";
+		} else {
+			counter = "count_human_dna";
+		}
+
+		this.incrementCounter(counter);
+	}
+
+	private void incrementCounter(String counter) {
+
+		Map<String, AttributeValue> key = new HashMap<>();
+		key.put("dna", new AttributeValue().withS("DNA"));
+
+		UpdateItemRequest updateItemRequest = new UpdateItemRequest().withTableName("DnaCounters").withKey(key)
+				.addAttributeUpdatesEntry(counter, new AttributeValueUpdate().withValue(new AttributeValue().withN("1"))
+						.withAction(AttributeAction.ADD));
+
+		amazonDynamoDB.updateItem(updateItemRequest);
+
+	}
 }

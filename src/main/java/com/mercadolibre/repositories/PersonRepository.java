@@ -4,6 +4,6 @@ import org.springframework.data.repository.CrudRepository;
 
 import com.mercadolibre.entities.Person;
 
-public interface HumanRepository extends CrudRepository<Person, String> {
+public interface PersonRepository extends CrudRepository<Person, String> {
 
 }
