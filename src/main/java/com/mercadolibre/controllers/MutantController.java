@@ -25,18 +25,17 @@ public class MutantController {
 	@ResponseBody
 	public ResponseEntity isMutant(@RequestBody Mutant mutante) throws DnaExcepcion {
 
-		try {
-			if (mutantService.isMutant(mutante.getDna().toArray(new String[0]))) {
-				
-				mutantService.save(mutante.getDna().toArray(new String[0]));
-				return new ResponseEntity(HttpStatus.OK);
-			} else {
-				return new ResponseEntity(HttpStatus.FORBIDDEN);
-			}
+		String[] dna = mutante.getDna().toArray((new String[0]));
+		boolean isMutant = mutantService.getMutantStatus(dna);
 
-		} catch (DnaExcepcion e) {
-			throw e;
+		ResponseEntity response;
+
+		if (isMutant) {
+			response = new ResponseEntity(HttpStatus.OK);
+		} else {
+			response = new ResponseEntity(HttpStatus.FORBIDDEN);
 		}
+		return response;
 	}
 
 	@RequestMapping("/stats")

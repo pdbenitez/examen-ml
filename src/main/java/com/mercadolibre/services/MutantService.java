@@ -1,5 +1,6 @@
 package com.mercadolibre.services;
 
+import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,7 @@ public class MutantService {
 
 	@Autowired
 	private HumanRepository humanRepository;
-	
+
 	public boolean isMutant(String[] dna) throws DnaExcepcion {
 		int mutantDna = 0;
 
@@ -76,9 +77,20 @@ public class MutantService {
 		return new Stats(40.0, 100.0);
 	}
 
-	public void save(String[] dna) {
-		humanRepository.save(new Person(dna.toString()));
-		
+	public boolean getMutantStatus(String[] dna) throws DnaExcepcion {
+
+		String dnaParser = Arrays.toString(dna);
+		Person person = humanRepository.findOne(dnaParser);
+		boolean mutantCondition = false;
+
+		if (person != null) {
+			mutantCondition = person.getIsMutant();
+		} else {
+			mutantCondition = this.isMutant(dna);
+			humanRepository.save(new Person(dnaParser, mutantCondition));
+		}
+
+		return mutantCondition;
 	}
 
 }
