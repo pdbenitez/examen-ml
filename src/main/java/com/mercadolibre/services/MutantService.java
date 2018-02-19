@@ -89,6 +89,7 @@ public class MutantService {
 
 		Map<String, AttributeValue> key = new HashMap<>();
 		key.put("dna", new AttributeValue().withS("DNA"));
+
 		GetItemResult result = amazonDynamoDB.getItem("DnaCounters", key);
 
 		Stats stats;
@@ -121,7 +122,7 @@ public class MutantService {
 		return mutantCondition;
 	}
 
-	private void saveDna(String dnaParser, boolean mutantCondition) {
+	public void saveDna(String dnaParser, boolean mutantCondition) {
 
 		String counter;
 		personRepository.save(new Person(dnaParser, mutantCondition));
@@ -135,7 +136,7 @@ public class MutantService {
 		this.incrementCounter(counter);
 	}
 
-	private void incrementCounter(String counter) {
+	public void incrementCounter(String counter) {
 
 		Map<String, AttributeValue> key = new HashMap<>();
 		key.put("dna", new AttributeValue().withS("DNA"));

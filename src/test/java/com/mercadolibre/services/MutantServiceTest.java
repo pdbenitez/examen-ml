@@ -3,10 +3,19 @@ package com.mercadolibre.services;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
+
 import org.junit.Test;
+import org.mockito.Mock;
+import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
+import org.springframework.boot.test.context.SpringBootTest;
 
+import com.mercadolibre.entities.Person;
 import com.mercadolibre.exceptions.DnaExcepcion;
+import com.mercadolibre.repositories.PersonRepository;
 
+@SpringBootTest
+@AutoConfigureTestEntityManager
 public class MutantServiceTest {
 
 	MutantService mutantService = new MutantService();
@@ -54,8 +63,14 @@ public class MutantServiceTest {
 	}
 
 	@Test
+	public void checkMutantDnaFourByFourMatrixMix() throws DnaExcepcion {
+		String[] dna = { "ATGA", "CGAC", "TAAT", "AAAA" };
+		assertTrue(mutantService.isMutant(dna));
+	}
+
+	@Test
 	public void checkMutantDnaSixBySixMatrixMix() throws DnaExcepcion {
-		String[] dna = { "ATGCGA", "CAGTGC", "TTATGT", "AGAAGG", "CCCCTA", "TCATGC" };
+		String[] dna = { "ATGAGA", "CAATGC", "TAATGT", "AGAAGG", "CCGCTA", "TCATGC" };
 		assertTrue(mutantService.isMutant(dna));
 	}
 
@@ -75,6 +90,12 @@ public class MutantServiceTest {
 	public void checkHumanDnaSixBySixMatrix() throws DnaExcepcion {
 		String[] dna = { "ATGCGA", "CATCTA", "TAGTAT", "GTCTGG", "GTCACC", "ATTGCA" };
 		assertFalse(mutantService.isMutant(dna));
+	}
+
+	@Test(expected = DnaExcepcion.class)
+	public void checkIsMutantException() throws DnaExcepcion {
+		String[] dna = { "QTAC", "CATC", "TAGT", "GTCT" };
+		mutantService.isMutant(dna);
 	}
 
 }

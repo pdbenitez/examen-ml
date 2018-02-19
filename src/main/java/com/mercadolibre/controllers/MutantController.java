@@ -20,20 +20,19 @@ public class MutantController {
 	@Autowired
 	private MutantService mutantService;
 
-	@SuppressWarnings("rawtypes")
 	@RequestMapping(method = RequestMethod.POST, value = "/mutant/")
 	@ResponseBody
-	public ResponseEntity isMutant(@RequestBody Mutant mutante) throws DnaExcepcion {
+	public ResponseEntity<String> isMutant(@RequestBody Mutant mutante) throws DnaExcepcion {
 
 		String[] dna = mutante.getDna().toArray((new String[0]));
 		boolean isMutant = mutantService.getMutantStatus(dna);
 
-		ResponseEntity response;
+		ResponseEntity<String> response;
 
 		if (isMutant) {
-			response = new ResponseEntity(HttpStatus.OK);
+			response = new ResponseEntity<String>(HttpStatus.OK);
 		} else {
-			response = new ResponseEntity(HttpStatus.FORBIDDEN);
+			response = new ResponseEntity<String>(HttpStatus.FORBIDDEN);
 		}
 		return response;
 	}
