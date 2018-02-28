@@ -2,6 +2,10 @@
 
 Magneto quiere reclutar la mayor cantidad de mutantes para poder luchar contra los X-Men.
 
+- Enunciado
+[link](https://github.com/pdbenitez/examen-ml/blob/master/exercise/Examen%20Mercadolibre%202017%20-%20Mutantes.pdf)
+
+
 ## Prerequisites
 
 Es necesario tener instalado:
@@ -17,7 +21,7 @@ DynamoDB
 
 - Clonar el repositorio. git clone https://github.com/pdbenitez/examen-ml.git
 - Bajar las dependencias, ejecutar los tests mvn test
-- Descargar DynamoDB para ejecucion local: 
+- Descargar DynamoDB para ejecucion local: [Descarga](https://docs.aws.amazon.com/es_es/amazondynamodb/latest/developerguide/DynamoDBLocal.html)
 - Levantar DynamoDB, chequear que este todo bien entrando a http://localhost:8000/shell/
 - En la shell de DynamoDB crear 2 tablas e insertar un registro:
 
@@ -40,7 +44,7 @@ console.log("Calling PutItem"); ppJson(params);
 docClient.put(params, function(err, data) { if (err) ppJson(err); else console.log("PutItem returned successfully");});
 ```
 
-- Levantar la app local: mvn spring-boot:run
+- Levantar la app local (Puerto 8081 por default, se puede modificar en el archivo application.properties): mvn spring-boot:run
 
 
 
@@ -49,6 +53,9 @@ docClient.put(params, function(err, data) { if (err) ppJson(err); else console.l
 La api /mutant/ detecta si un ADN de un humano es mutante o no mediante un HTTP POST con un Json el cual tenga el siguiente formato:
 
 POST → ScaleItUpDemoELB-847883525.us-east-1.elb.amazonaws.com/mutant/
+
+POST → localhost:8081/mutant/
+
 
 {
 "dna":["ATGCGA","CAGTGC","TTATGT","AGAAGG","CCCCTA","TCACTG"]
@@ -59,12 +66,15 @@ En caso de verificar un mutante, devuelve un HTTP 200-OK, en caso contrario un 4
 
 
 
+
+
 La api /stats devuelve un Json con las estadisticas de las verificaciones de ADN:
 
  {"count_mutant_dna":40, "count_human_dna":100, "ratio":0.4}
 
 GET → ScaleItUpDemoELB-847883525.us-east-1.elb.amazonaws.com/stats
 
+GET → localhost:8081/stats
 
 
 ## Architecture
