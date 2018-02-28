@@ -48,7 +48,8 @@ docClient.put(params, function(err, data) { if (err) ppJson(err); else console.l
 
 La api /mutant/ detecta si un ADN de un humano es mutante o no mediante un HTTP POST con un Json el cual tenga el siguiente formato:
 
-POST → /mutant/
+POST → ScaleItUpDemoELB-847883525.us-east-1.elb.amazonaws.com/mutant/
+
 {
 "dna":["ATGCGA","CAGTGC","TTATGT","AGAAGG","CCCCTA","TCACTG"]
 }
@@ -62,12 +63,26 @@ La api /stats devuelve un Json con las estadisticas de las verificaciones de ADN
 
  {"count_mutant_dna":40, "count_human_dna":100, "ratio":0.4}
 
-GET → /stats
+GET → ScaleItUpDemoELB-847883525.us-east-1.elb.amazonaws.com/stats
 
 
 
 ## Architecture
 
+![Screenshot](image/arquitectura.png)
+
+ 
+
+## Overview
+
+Se decidio usar un Load Balancer con un server como base para que luego segun la carga escale horizontalmente, cuando supere ciertos limites (75% como limite superior de cpu/average para agregar un nuevo server y 15% como limite inferior de cpu/average para apagar un server).
+
+Para acompañar la decision, se opto como base de datos, DynamoDB de Amazon por su feature de autoscaling que se ajusta de forma dinamica y automatica en base al trafico que reciba, que hace que su capacidad de lectura o escritura aumente o disminuya, segun corresponda.
 
 
+## Considerations
 
+Para el algoritmo de deteccion de mutantes se uso una comparacion de 4 letras (char) la que devuelve si son iguales o no.
+A medida que se recorre la matriz de un ADN, se comparan letras en forma horizontal, vertical y oblicua en una misma iteracion para mayor eficiencia. Cuando se termina una iteracion se decide si continuar o no en la busqueda de secuencias de ADN mutantes.
+
+Cuando un ADN se consulta por primera vez, se realiza la busqueda mediante el algoritmo descripto anteriormente, luego se guarda en DynamoDB el ADN con un resultado (true/false) y por ultimo se actualiza el contador de mutantes/humanos. Luego si ese mismo ADN se vuelve a consultar simplemente se busca el resultado en DynamoDB para no pasar nuevamente por el algoritmo.
